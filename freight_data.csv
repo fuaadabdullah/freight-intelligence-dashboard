@@ -1,0 +1,6 @@
+City,Lat,Lon,Score,FuelPrice,LMI,NewsSentiment
+Atlanta,33.7490,-84.3880,92,3.21,52,Positive
+Savannah,32.0809,-81.0912,61,3.68,48,Neutral
+Augusta,33.4735,-82.0105,58,3.34,63,Negative
+Macon,32.8407,-83.6324,88,3.91,57,Neutral
+Columbus,32.460976,-84.9877,72,3.55,69,Positive

@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 from typing import Protocol
 
 from data import prepare_dataframe
@@ -38,8 +39,10 @@ def build_figure(
         animate=animate,
     )
 
+    _ensure_parent_dir(output)
     fig.write_html(output)
     if screenshot:
+        _ensure_parent_dir(screenshot)
         _write_png_safely(fig, screenshot)
 
     # Business-friendly summary line for demos/interviews
@@ -63,6 +66,12 @@ def _write_png_safely(fig: SupportsWriteImage, screenshot: str) -> None:
             "PNG export skipped. HTML export succeeded. "
             f"Reason: {exc}"
         )
+
+
+def _ensure_parent_dir(file_path: str) -> None:
+    path = Path(file_path)
+    if path.parent and path.parent != Path("."):
+        path.parent.mkdir(parents=True, exist_ok=True)
 
 
 def main() -> None:
