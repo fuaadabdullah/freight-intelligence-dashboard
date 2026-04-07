@@ -17,7 +17,8 @@ This project and all source files in this repository are created and owned by Fu
 ## Project Outputs
 
 - Interactive HTML map export in `assets/freight_heatmap.html`
-- Screenshot export in `assets/freight_heatmap.png`
+- Screenshot export in `assets/freight_heatmap.png` (best effort; requires Kaleido)
+- If PNG export fails (for example, Kaleido is missing), HTML export remains the guaranteed fallback
 
 ## Run
 
