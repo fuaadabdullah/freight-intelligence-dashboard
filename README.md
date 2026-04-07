@@ -82,6 +82,25 @@ After the first successful workflow run, your dashboard is served from your GitH
 - You can run the workflow anytime from the **Actions** tab using **Run workflow**.
 - If a run fails, check workflow logs for dependency install, data acquisition, or rendering errors.
 
+## CircleCI Deployment (Alternative CI)
+
+If you prefer CircleCI over GitHub Actions, this repo now includes:
+
+- CircleCI config: `.circleci/config.yml`
+- Deployment target: `gh-pages`
+- Schedule: daily at `06:00 UTC`
+- Also runs on pushes to `main`
+
+### Required CircleCI environment variables
+
+Set these in **CircleCI Project Settings → Environment Variables**:
+
+- `GITHUB_TOKEN` (GitHub PAT with repo write access)
+- `EIA_API_KEY`
+- `OPENWEATHERMAP_API_KEY`
+
+The CircleCI job runs tests, generates dashboard HTML with `--extras`, then force-with-lease pushes site files to `gh-pages`.
+
 ## Data Source Strategy
 
 The dashboard uses this order when loading data:

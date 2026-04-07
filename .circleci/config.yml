@@ -1,0 +1,92 @@
+version: 2.1
+
+jobs:
+  test-build-deploy:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install dependencies
+          command: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
+      - run:
+          name: Run tests
+          command: |
+            python -m pytest -q
+
+      - run:
+          name: Generate dashboard HTML (live extras)
+          command: |
+            python freight_heatmap.py --extras --no-show --no-screenshot --output freight_heatmap.html
+
+            cat > index.html <<'HTML'
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Freight Intelligence Dashboard</title>
+              <style>
+                body { margin: 0; font-family: Arial, sans-serif; }
+                h1 { margin: 16px; }
+                iframe { border: 0; width: 100%; height: calc(100vh - 64px); }
+              </style>
+            </head>
+            <body>
+              <h1>Georgia Freight Heat Map</h1>
+              <iframe src="./freight_heatmap.html" title="Freight Heat Map"></iframe>
+            </body>
+            </html>
+            HTML
+
+      - run:
+          name: Deploy to gh-pages branch
+          command: |
+            if [ -z "$GITHUB_TOKEN" ]; then
+              echo "GITHUB_TOKEN is required in CircleCI project env vars"
+              exit 1
+            fi
+
+            rm -rf .pages
+            mkdir -p .pages
+            cp index.html .pages/index.html
+            cp freight_heatmap.html .pages/freight_heatmap.html
+
+            cd .pages
+            git init
+            git checkout -b gh-pages
+            git config user.name "circleci[bot]"
+            git config user.email "circleci@users.noreply.github.com"
+            git add index.html freight_heatmap.html
+            git commit -m "chore: publish dashboard"
+            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+
+            remote_head=$(git ls-remote --heads origin gh-pages | awk '{print $1}')
+            if [ -n "$remote_head" ]; then
+              git push --force-with-lease=gh-pages:$remote_head origin gh-pages
+            else
+              git push origin gh-pages
+            fi
+
+workflows:
+  deploy-on-main:
+    jobs:
+      - test-build-deploy:
+          filters:
+            branches:
+              only: main
+
+  nightly-deploy:
+    triggers:
+      - schedule:
+          cron: "0 6 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - test-build-deploy
