@@ -6,3 +6,5 @@ __pycache__/
 ._*
 assets/*.html
 assets/*.png
+*.html
+*.png
