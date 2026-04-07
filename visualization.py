@@ -21,7 +21,20 @@ def create_map_figure(
     color_scale: str,
     animate: bool,
 ) -> Any:
-    selected_scale = getattr(px.colors.sequential, color_scale, px.colors.sequential.OrRd)
+    if hasattr(px.colors.sequential, color_scale):
+        selected_scale = getattr(px.colors.sequential, color_scale)
+    else:
+        warnings.warn(
+            (
+                f"Unknown color scale '{color_scale}'. "
+                "Falling back to 'OrRd'."
+            ),
+            category=UserWarning,
+            stacklevel=2,
+        )
+        selected_scale = px.colors.sequential.OrRd
+
+    is_animated = animate and "Hour" in df.columns
 
     custom_columns = ["City", "Score"]
     for col in ["FuelPrice", "LMI", "NewsSentiment"]:
@@ -46,7 +59,7 @@ def create_map_figure(
             size_max=size_max,
             zoom=6,
             mapbox_style="carto-positron",
-            animation_frame="Hour" if animate and "Hour" in df.columns else None,
+            animation_frame="Hour" if is_animated else None,
             custom_data=custom_columns,
         )
 
@@ -54,16 +67,24 @@ def create_map_figure(
         "<b>%{customdata[0]}</b>",
         "Freight Score: %{customdata[1]}",
     ]
+    custom_index = {col: idx for idx, col in enumerate(custom_columns)}
     if "FuelPrice" in df.columns:
-        hover_parts.append("Fuel Price: $%{customdata[2]}")
+        hover_parts.append(f"Fuel Price: $%{{customdata[{custom_index['FuelPrice']}]}}")
     if "LMI" in df.columns:
-        hover_parts.append("LMI: %{customdata[3]}")
+        hover_parts.append(f"LMI: %{{customdata[{custom_index['LMI']}]}}")
     if "NewsSentiment" in df.columns:
-        hover_parts.append("Sentiment: %{customdata[4]}")
+        hover_parts.append(
+            f"Sentiment: %{{customdata[{custom_index['NewsSentiment']}]}}"
+        )
 
     fig.update_traces(hovertemplate="<br>".join(hover_parts) + "<extra></extra>")
+    title = (
+        "Georgia Freight Heat Map (Last 24 Hours)"
+        if is_animated
+        else "Georgia Freight Heat Map"
+    )
     fig.update_layout(
-        title="Georgia Freight Heat Map (Last 24 Hours)",
+        title=title,
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
     )
     return fig

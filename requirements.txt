@@ -1,5 +1,3 @@
 pandas>=2.2.0
-pandas-stubs>=2.2.0.240218
 plotly>=5.24.0
-kaleido>=0.2.1
-flake8>=7.1.0
+kaleido>=0.2.1,<0.3

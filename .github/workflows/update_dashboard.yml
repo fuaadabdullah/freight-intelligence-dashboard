@@ -5,6 +5,10 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: freight-dashboard-gh-pages
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -26,8 +30,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Generate dashboard HTML
+        env:
+          EIA_API_KEY: ${{ secrets['EIA_API_KEY'] }}
+          OPENWEATHERMAP_API_KEY: ${{ secrets['OPENWEATHERMAP_API_KEY'] }}
         run: |
-          python freight_heatmap.py --no-show --output freight_heatmap.html --screenshot ""
+          python freight_heatmap.py --extras --no-show --no-screenshot --output freight_heatmap.html
 
           cat > index.html <<'HTML'
           <!DOCTYPE html>
@@ -64,4 +71,9 @@ jobs:
           git add index.html freight_heatmap.html
           git commit -m "chore: publish dashboard"
           git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          git push --force origin gh-pages
+          remote_head=$(git ls-remote --heads origin gh-pages | awk '{print $1}')
+          if [ -n "$remote_head" ]; then
+            git push --force-with-lease=gh-pages:$remote_head origin gh-pages
+          else
+            git push origin gh-pages
+          fi

@@ -1,6 +1,10 @@
 import argparse
+import sys
 from pathlib import Path
 from typing import Protocol
+
+# Ensure local module imports resolve even when executed outside repo root.
+sys.path.insert(0, str(Path(__file__).parent))
 
 from data import prepare_dataframe
 from visualization import create_map_figure
@@ -81,7 +85,17 @@ def main() -> None:
     parser.add_argument("--size-max", type=int, default=DEFAULT_SIZE_MAX, help="Max marker size")
     parser.add_argument("--color-scale", type=str, default=DEFAULT_COLOR_SCALE, help="Sequential color scale")
     parser.add_argument("--output", type=str, default=DEFAULT_OUTPUT, help="HTML output path")
-    parser.add_argument("--screenshot", type=str, default=DEFAULT_SCREENSHOT, help="PNG output path")
+    parser.add_argument(
+        "--screenshot",
+        type=str,
+        default=DEFAULT_SCREENSHOT,
+        help="PNG output path (pass empty string to skip)",
+    )
+    parser.add_argument(
+        "--no-screenshot",
+        action="store_true",
+        help="Skip PNG export regardless of --screenshot",
+    )
     parser.add_argument(
         "--no-show",
         action="store_true",
@@ -94,7 +108,7 @@ def main() -> None:
         size_max=args.size_max,
         color_scale=args.color_scale,
         output=args.output,
-        screenshot=args.screenshot,
+        screenshot="" if args.no_screenshot else args.screenshot,
         extras=args.extras,
         animate=args.animate,
         show=not args.no_show,

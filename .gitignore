@@ -4,6 +4,9 @@ __pycache__/
 .mypy_cache/
 .DS_Store
 ._*
+.env
+.env.*
+!.env.example
 assets/*.html
 assets/*.png
 *.html

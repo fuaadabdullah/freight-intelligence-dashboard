@@ -29,6 +29,27 @@ Use your virtual environment Python executable:
 - With extras: `python freight_heatmap.py --extras --output assets/freight_heatmap.html`
 - Animated: `python freight_heatmap.py --extras --animate --output assets/freight_heatmap.html --screenshot assets/freight_heatmap.png`
 
+## Optional API Keys
+
+If you plan to integrate live external sources, add keys in a local `.env` file.
+
+- Template: `.env.example`
+- Local secrets file (git-ignored): `.env`
+
+Current optional keys:
+
+- `EIA_API_KEY`
+- `OPENWEATHERMAP_API_KEY`
+
+### GitHub Actions secrets for live deploys
+
+To use live extras in scheduled deployments, add these repository secrets:
+
+- `EIA_API_KEY`
+- `OPENWEATHERMAP_API_KEY`
+
+The workflow uses these secrets when generating the dashboard with `--extras`.
+
 ## Automated Daily Publish (GitHub Actions + GitHub Pages)
 
 This repository includes a scheduled workflow that regenerates the dashboard and deploys it to the `gh-pages` branch.
@@ -36,13 +57,14 @@ This repository includes a scheduled workflow that regenerates the dashboard and
 - Workflow file: `.github/workflows/update_dashboard.yml`
 - Schedule: daily at `06:00 UTC`
 - Output artifact generated in CI: `index.html`
-- Deployment target: `gh-pages` branch via `peaceiris/actions-gh-pages`
+- Deployment target: `gh-pages` branch via direct `git` push in workflow script
 
 ### How it works
 
 1. The workflow checks out code and installs dependencies from `requirements.txt`.
 2. It runs:
-   - `python freight_heatmap.py --no-show --output index.html --screenshot ""`
+   - `python freight_heatmap.py --no-show --no-screenshot --output freight_heatmap.html`
+   - Then wraps it in a simple `index.html` that embeds `freight_heatmap.html`.
 3. It deploys the generated site contents to the `gh-pages` branch.
 
 ### Enable GitHub Pages
