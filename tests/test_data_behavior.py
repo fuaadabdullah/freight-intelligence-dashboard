@@ -1,6 +1,8 @@
 import unittest
 import warnings
 import random
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
@@ -9,8 +11,10 @@ from freight_intelligence_dashboard.data import (
     build_base_dataframe,
     build_hourly_simulation,
     prepare_dataframe,
+    _validate_remote_data_url,
     validate_dataframe,
 )
+from freight_intelligence_dashboard.app import _inject_html_title, _validate_cli_options
 from freight_intelligence_dashboard.visualization import create_map_figure
 
 
@@ -132,6 +136,43 @@ class DataBehaviorTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "longitude"):
             validate_dataframe(bad_lon_df)
+
+    def test_validate_cli_options_rejects_invalid_paths_and_size(self) -> None:
+        with self.assertRaisesRegex(ValueError, "size-max"):
+            _validate_cli_options(size_max=0, output="assets/out.html", screenshot="")
+
+        with self.assertRaisesRegex(ValueError, "Output"):
+            _validate_cli_options(size_max=10, output="assets/out.png", screenshot="")
+
+        with self.assertRaisesRegex(ValueError, "Screenshot"):
+            _validate_cli_options(size_max=10, output="assets/out.html", screenshot="assets/out.html")
+
+    def test_inject_html_title_escapes_html_markup(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            html_path = Path(tmpdir) / "example.html"
+            html_path.write_text("<html><head></head><body></body></html>", encoding="utf-8")
+
+            _inject_html_title(str(html_path), "Dashboard <script>alert(1)</script>")
+
+            content = html_path.read_text(encoding="utf-8")
+            self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", content)
+            self.assertNotIn("<script>alert(1)</script>", content)
+
+    def test_validate_remote_data_url_rejects_private_targets(self) -> None:
+        for unsafe_url in [
+            "http://example.com/data.csv",
+            "https://localhost/data.csv",
+            "https://127.0.0.1/data.csv",
+            "https://10.0.0.5/data.csv",
+            "https://[::1]/data.csv",
+        ]:
+            with self.assertRaises(ValueError):
+                _validate_remote_data_url(unsafe_url)
+
+        self.assertEqual(
+            _validate_remote_data_url("https://example.com/data.csv").hostname,
+            "example.com",
+        )
 
 
 if __name__ == "__main__":

@@ -31,8 +31,8 @@ jobs:
 
       - name: Generate dashboard HTML
         env:
-          EIA_API_KEY: ${{ secrets['EIA_API_KEY'] }}
-          OPENWEATHERMAP_API_KEY: ${{ secrets['OPENWEATHERMAP_API_KEY'] }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          OPENWEATHERMAP_API_KEY: ${{ secrets.OPENWEATHERMAP_API_KEY }}
         run: |
           python freight_heatmap.py --extras --no-show --no-screenshot --output freight_heatmap.html
 

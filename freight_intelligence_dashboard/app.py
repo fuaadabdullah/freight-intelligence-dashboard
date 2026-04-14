@@ -1,9 +1,12 @@
 import argparse
+from html import escape
 from pathlib import Path
 from typing import Protocol
 
 
 DEFAULT_SIZE_MAX = 40
+MIN_SIZE_MAX = 1
+MAX_SIZE_MAX = 100
 DEFAULT_COLOR_SCALE = "OrRd"
 DEFAULT_OUTPUT = "assets/freight_heatmap.html"
 DEFAULT_SCREENSHOT = "assets/freight_heatmap.png"
@@ -21,16 +24,56 @@ def _inject_html_title(file_path: str, title: str) -> None:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
-        
+
         # Insert title tag after <head>
         if "<head>" in html_content:
-            title_tag = f"<title>{title}</title>"
+            title_tag = f"<title>{escape(title, quote=True)}</title>"
             html_content = html_content.replace("<head>", f"<head>\n    {title_tag}", 1)
-        
+
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(html_content)
-    except Exception as exc:
+    except (OSError, UnicodeError) as exc:
         print(f"Warning: Could not inject HTML title: {exc}")
+
+
+def _validated_output_path(file_path: str, *, expected_suffix: str, label: str) -> str:
+    """Validate output-like file paths used by CLI flags."""
+
+    normalized = file_path.strip()
+    if not normalized:
+        raise ValueError(f"{label} path cannot be empty")
+    if "\x00" in normalized:
+        raise ValueError(f"{label} path contains an invalid null byte")
+
+    suffix = Path(normalized).suffix.lower()
+    if expected_suffix and suffix != expected_suffix:
+        raise ValueError(f"{label} path must end with {expected_suffix}")
+
+    return normalized
+
+
+def _validate_cli_options(size_max: int, output: str, screenshot: str) -> tuple[str, str]:
+    """Validate user-provided CLI options before generating artifacts."""
+
+    if not (MIN_SIZE_MAX <= size_max <= MAX_SIZE_MAX):
+        raise ValueError(
+            f"--size-max must be between {MIN_SIZE_MAX} and {MAX_SIZE_MAX}"
+        )
+
+    validated_output = _validated_output_path(
+        output,
+        expected_suffix=".html",
+        label="Output",
+    )
+    validated_screenshot = ""
+    if screenshot:
+        validated_screenshot = _validated_output_path(
+            screenshot,
+            expected_suffix=".png",
+            label="Screenshot",
+        )
+
+    return validated_output, validated_screenshot
 
 
 def _write_png_safely(fig: SupportsWriteImage, screenshot: str) -> None:
@@ -127,12 +170,21 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    try:
+        validated_output, validated_screenshot = _validate_cli_options(
+            size_max=args.size_max,
+            output=args.output,
+            screenshot="" if args.no_screenshot else args.screenshot,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
+
     # Generate simulated freight demand data (replace with real API data in production).
     build_figure(
         size_max=args.size_max,
         color_scale=args.color_scale,
-        output=args.output,
-        screenshot="" if args.no_screenshot else args.screenshot,
+        output=validated_output,
+        screenshot=validated_screenshot,
         extras=args.extras,
         animate=args.animate,
         show=not args.no_show,

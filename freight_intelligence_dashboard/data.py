@@ -1,13 +1,12 @@
-# pyright: reportMissingTypeStubs=false
-
-import json
+from json import loads
+import ipaddress
 import os
 import random
 from pathlib import Path
+from urllib.parse import ParseResult, urlparse
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen, urlretrieve
-
 import pandas as pd
 
 
@@ -20,6 +19,50 @@ DEFAULT_CSV_PATH = Path("freight_data.csv")
 FREIGHT_DATA_URL_ENV = "FREIGHT_DATA_URL"
 EIA_API_KEY_ENV = "EIA_API_KEY"
 OPENWEATHERMAP_API_KEY_ENV = "OPENWEATHERMAP_API_KEY"
+ALLOWED_REMOTE_DATA_SCHEMES = {"https"}
+BLOCKED_HOSTNAMES = {"localhost", "127.0.0.1", "::1"}
+
+
+def _is_private_or_local_ip(hostname: str) -> bool:
+    """Return True when hostname is a loopback/private/link-local IP literal."""
+
+    try:
+        ip = ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+
+    return (
+        ip.is_loopback
+        or ip.is_private
+        or ip.is_link_local
+        or ip.is_reserved
+        or ip.is_multicast
+        or ip.is_unspecified
+    )
+
+
+def _validate_remote_data_url(data_url: str) -> ParseResult:
+    """Validate a remote CSV URL and reject unsafe or malformed targets."""
+
+    parsed = urlparse(data_url)
+
+    if parsed.scheme.lower() not in ALLOWED_REMOTE_DATA_SCHEMES:
+        raise ValueError("FREIGHT_DATA_URL must use https")
+
+    if not parsed.netloc:
+        raise ValueError("FREIGHT_DATA_URL must include a host")
+
+    hostname = (parsed.hostname or "").strip().lower()
+    if not hostname:
+        raise ValueError("FREIGHT_DATA_URL host is missing")
+
+    if hostname in BLOCKED_HOSTNAMES or hostname.endswith(".localhost"):
+        raise ValueError("FREIGHT_DATA_URL cannot target localhost")
+
+    if _is_private_or_local_ip(hostname):
+        raise ValueError("FREIGHT_DATA_URL cannot target private or local IP addresses")
+
+    return parsed
 
 
 def validate_dataframe(df: pd.DataFrame) -> None:
@@ -70,11 +113,13 @@ def _download_csv_if_needed(csv_path: Path) -> Path | None:
     if not data_url:
         return None
 
+    _validate_remote_data_url(data_url)
+
     try:
         urlretrieve(data_url, csv_path)
         print(f"Downloaded freight data from {data_url} to {csv_path}")
         return csv_path
-    except (URLError, OSError) as exc:
+    except (ValueError, URLError, OSError) as exc:
         raise RuntimeError(
             f"Unable to download freight data from {data_url}: {exc}"
         ) from exc
@@ -157,7 +202,7 @@ def _fetch_json(url: str) -> dict:
     """Fetch a JSON payload from a URL with a bounded request timeout."""
 
     with urlopen(url, timeout=10) as response:
-        return json.loads(response.read().decode("utf-8"))
+        return loads(response.read().decode("utf-8"))
 
 
 def _fetch_eia_fuel_price(api_key: str) -> float | None:
