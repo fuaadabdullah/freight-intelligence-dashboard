@@ -1,3 +1,17 @@
+Metadata-Version: 2.4
+Name: freight-intelligence-dashboard
+Version: 0.1.0
+Summary: Freight Intelligence Dashboard for Georgia demand hotspot visualization
+Author-email: Fuaad Abdullah <fuaadabdullah@gmail.com>
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: pandas>=2.2.0
+Requires-Dist: plotly>=5.24.0
+Requires-Dist: kaleido<0.3,>=0.2.1
+Dynamic: license-file
+
 # freight-intelligence-dashboard
 
 > **Built by [Fuaad Abdullah](https://github.com/fuaadabdullah)** | [Email](mailto:fuaadabdullah@gmail.com) | [GitHub](https://github.com/fuaadabdullah)

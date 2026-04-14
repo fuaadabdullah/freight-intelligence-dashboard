@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "freight-intelligence-dashboard"
+version = "0.1.0"
+description = "Freight Intelligence Dashboard for Georgia demand hotspot visualization"
+authors = [{name = "Fuaad Abdullah", email = "fuaadabdullah@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.2.0",
+  "plotly>=5.24.0",
+  "kaleido>=0.2.1,<0.3",
+]
+
+[project.scripts]
+freight-heatmap = "freight_intelligence_dashboard.app:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["freight_intelligence_dashboard*"]
+
+[tool.setuptools.package-data]
+freight_intelligence_dashboard = ["py.typed"]

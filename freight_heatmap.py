@@ -1,9 +1,6 @@
-import sys
-from pathlib import Path
+"""Script entrypoint for running the freight dashboard app module."""
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from app import main
+from freight_intelligence_dashboard.app import main
 
 
 if __name__ == "__main__":

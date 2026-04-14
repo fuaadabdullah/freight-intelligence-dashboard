@@ -1,0 +1,2 @@
+[console_scripts]
+freight-heatmap = freight_intelligence_dashboard.app:main

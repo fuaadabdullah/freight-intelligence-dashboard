@@ -5,13 +5,13 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from data import (
+from freight_intelligence_dashboard.data import (
     build_base_dataframe,
     build_hourly_simulation,
     prepare_dataframe,
     validate_dataframe,
 )
-from visualization import create_map_figure
+from freight_intelligence_dashboard.visualization import create_map_figure
 
 
 class DataBehaviorTests(unittest.TestCase):
@@ -53,7 +53,7 @@ class DataBehaviorTests(unittest.TestCase):
         source_df["LMI"] = [60] * len(source_df)
         source_df["NewsSentiment"] = ["Neutral"] * len(source_df)
 
-        with patch("data._load_source_dataframe", return_value=source_df):
+        with patch("freight_intelligence_dashboard.data._load_source_dataframe", return_value=source_df):
             result_df = prepare_dataframe(extras=False, animate=False, seed=123)
 
         self.assertNotIn("FuelPrice", result_df.columns)
@@ -63,7 +63,7 @@ class DataBehaviorTests(unittest.TestCase):
     def test_prepare_dataframe_adds_extras_when_missing_and_enabled(self) -> None:
         source_df = build_base_dataframe(seed=9)
 
-        with patch("data._load_source_dataframe", return_value=source_df):
+        with patch("freight_intelligence_dashboard.data._load_source_dataframe", return_value=source_df):
             result_df = prepare_dataframe(extras=True, animate=False, seed=123)
 
         self.assertIn("FuelPrice", result_df.columns)
@@ -75,7 +75,7 @@ class DataBehaviorTests(unittest.TestCase):
         source_df["FuelPrice"] = [3.10] * len(source_df)
         source_df["LMI"] = [62] * len(source_df)
 
-        with patch("data._load_source_dataframe", return_value=source_df):
+        with patch("freight_intelligence_dashboard.data._load_source_dataframe", return_value=source_df):
             result_df = prepare_dataframe(extras=True, animate=False, seed=123)
 
         self.assertTrue((result_df["FuelPrice"] == 3.10).all())

@@ -1,4 +1,15 @@
 {
   "typeCheckingMode": "standard",
-  "reportMissingTypeStubs": "none"
+  "reportMissingTypeStubs": "none",
+  "include": [
+    "."
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "."
+      ]
+    }
+  ]
 }
