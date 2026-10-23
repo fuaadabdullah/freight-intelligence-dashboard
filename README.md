@@ -1,6 +1,6 @@
 # freight-intelligence-dashboard
 
-> **Built by [Fuaad Abdullah](https://github.com/fuaadabdullah)** | [Email](mailto:fuaadabdullah@gmail.com) | [GitHub](https://github.com/fuaadabdullah)
+> **Built by [Fuaad Abdullah](https://github.com/fuaadabdullah)** | [Contact](https://heyimfuaad.me/contact) | [GitHub](https://github.com/fuaadabdullah)
 
 Freight Intelligence Dashboard for visualizing freight-demand hotspots across Georgia using Python, Pandas, and Plotly.
 
@@ -8,7 +8,7 @@ Freight Intelligence Dashboard for visualizing freight-demand hotspots across Ge
 
 ### Fuaad Abdullah
 
-- Email: [fuaadabdullah@gmail.com](mailto:fuaadabdullah@gmail.com)
+- Email: [Contact](https://heyimfuaad.me/contact)
 - GitHub: [@fuaadabdullah](https://github.com/fuaadabdullah)
 - 📍 Built in 2026
 
