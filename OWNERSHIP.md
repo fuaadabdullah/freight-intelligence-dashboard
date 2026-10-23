@@ -6,7 +6,7 @@ Project owner: **Fuaad Abdullah**
 
 - Local git identity configured to:
   - Name: `Fuaad Abdullah`
-  - Email: `fuaadabdullah@gmail.com`
+  - Email: personal address was previously used; use GitHub's private noreply address for new public commits
 - Ownership files added:
   - `README.md`
   - `LICENSE` (All rights reserved)
@@ -17,7 +17,7 @@ Project owner: **Fuaad Abdullah**
 
 1. Push this repository to your GitHub account (`fuaadabdullah`) with commit history intact.
 2. Tag a release (`v1.0.0`) after your first stable demo.
-3. Keep all future work committed under the same verified email.
+3. Use GitHub's private noreply commit email and verified signing for future work.
 4. (Optional but strong) Sign commits with GPG or SSH signing.
 5. (Optional legal) Register copyright in your jurisdiction for stronger legal enforcement.
 

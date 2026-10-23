@@ -8,7 +8,7 @@ Freight Intelligence Dashboard for visualizing freight-demand hotspots across Ge
 
 ### Fuaad Abdullah
 
-- Email: [Contact](https://heyimfuaad.me/contact)
+- Professional inquiries: [Contact form](https://heyimfuaad.me/contact)
 - GitHub: [@fuaadabdullah](https://github.com/fuaadabdullah)
 - 📍 Built in 2026
 
