@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "freight-intelligence-dashboard"
 version = "0.1.0"
 description = "Freight Intelligence Dashboard for Georgia demand hotspot visualization"
-authors = [{name = "Fuaad Abdullah", email = "fuaadabdullah@gmail.com"}]
+authors = [{name = "Fuaad Abdullah"}]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
